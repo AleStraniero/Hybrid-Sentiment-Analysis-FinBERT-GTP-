@@ -1,4 +1,6 @@
 ### Market data
+### Literature lays out data suggestions and pipeline implementation
+
 import pandas as pd
 import yfinance as yf
 
@@ -47,8 +49,7 @@ SLEEP_SEC   = 60 / REQS_PER_MIN        # The 12s pause forces code to stay withi
 CHECKPOINT  = "archive_checkpoint.json"
 ARCHIVE_URL = "https://api.nytimes.com/svc/archive/v1/{year}/{month}.json"
 
-# Wrapper handles 429 and retries
-def archive_month(year: int, month: int, max_retries: int = 5) -> Dict:
+def archive_month(year: int, month: int, max_retries: int = 5) -> Dict: # Wrapper handles 429 and retries
     """Fetch one month from NYT Archive API with rate-limit back-off."""
     url    = ARCHIVE_URL.format(year=year, month=month)
     params = {"api-key": NYT_API_KEY}
@@ -57,7 +58,7 @@ def archive_month(year: int, month: int, max_retries: int = 5) -> Dict:
         resp = requests.get(url, params=params, timeout=60)
         if resp.status_code == 429:                # Too Many Requests
             wait = int(resp.headers.get("Retry-After", "15"))
-            print(f"⚠️  429 received — sleeping {wait}s and retrying …")
+            print(f"429 received — sleeping {wait}s and retrying …")
             time.sleep(wait)
             continue
         resp.raise_for_status()
